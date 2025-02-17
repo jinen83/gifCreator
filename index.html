@@ -30,6 +30,11 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        #progress {
+            margin-top: 10px;
+            color: yellow;
+            display: none;
+        }
         #gif-preview {
             margin-top: 20px;
             display: none;
@@ -43,7 +48,8 @@
     <h2>Convert Typing Animation to GIF</h2>
     <canvas id="canvas" width="400" height="100"></canvas>
     <br>
-    <button id="download">Download GIF2</button>
+    <button id="download">Generate GIF</button>
+    <p id="progress">Generating GIF... Please wait.</p>
     <br>
     <img id="gif-preview" alt="Generated GIF will appear here">
 
@@ -51,6 +57,7 @@
         const text = "Hello, welcome to GIF!";
         let i = 0;
         let gif = null; // Store the GIF instance
+        let processing = false; // Prevent multiple GIF creations
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -68,11 +75,15 @@
                 i++;
                 setTimeout(captureFrames, 150); // Adjust speed
             } else {
-                generateGIF();
+                setTimeout(() => { generateGIF(); }, 500); // Ensure last frame is added before rendering
             }
         }
 
         function generateGIF() {
+            if (processing) return; // Prevent multiple GIF generations
+            processing = true;
+            document.getElementById("progress").style.display = "block";
+
             gif.on('finished', function(blob) {
                 let url = URL.createObjectURL(blob);
 
@@ -88,24 +99,30 @@
                 link.textContent = "Click here to download GIF";
                 link.style.display = "block";
                 link.style.marginTop = "10px";
-                
+
                 // Remove old links if any
                 let existingLink = document.querySelector("a[download]");
                 if (existingLink) {
                     existingLink.remove();
                 }
                 document.body.appendChild(link);
+
+                document.getElementById("progress").style.display = "none";
+                processing = false; // Reset flag after completion
             });
 
             gif.render();
         }
 
         document.getElementById("download").addEventListener("click", () => {
+            if (processing) return; // Prevent multiple clicks
             if (gif !== null) {
                 gif.abort(); // Stop any previous GIF process
             }
 
             i = 0;
+            processing = false;
+            document.getElementById("progress").style.display = "none";
 
             // Create a new GIF instance (reset)
             gif = new GIF({
