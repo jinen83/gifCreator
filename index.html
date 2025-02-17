@@ -3,77 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table Grid Pagination Challenge</title>
+    <title>Pagination Challenge</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
             text-align: center;
         }
+        .challenge-box {
+            width: 500px;
+            margin: auto;
+            border: 2px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
         table {
-            width: 80%;
-            margin: 20px auto;
+            width: 100%;
+            margin: 10px 0;
             border-collapse: collapse;
         }
         th, td {
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
         }
-        th {
-            background-color: #f4f4f4;
-        }
         .pagination {
-            margin: 20px;
+            margin: 10px;
         }
-        button {
+        button, select {
             margin: 5px;
-            padding: 10px;
+            padding: 8px;
             cursor: pointer;
         }
         textarea {
-            width: 80%;
-            height: 100px;
-            margin-top: 20px;
+            width: 100%;
+            height: 80px;
+            margin-top: 10px;
             font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <h2>Table Grid Pagination Challenge</h2>
-    <p><strong>Task:</strong> Implement pagination (5 rows per page) using JavaScript.</p>
+    <div class="challenge-box">
+        <h3>Pagination Challenge</h3>
+        <p>Select the correct JavaScript code to paginate this table:</p>
 
-    <!-- Table Grid -->
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Role</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <!-- Data Rows -->
-        </tbody>
-    </table>
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Data Rows -->
+            </tbody>
+        </table>
 
-    <!-- Pagination Controls (Initially hidden) -->
-    <div class="pagination" id="paginationControls" style="display: none;">
-        <button id="prevBtn">Previous</button>
-        <span id="pageInfo">Page 1</span>
-        <button id="nextBtn">Next</button>
+        <div class="pagination" id="paginationControls">
+            <button id="prevBtn" disabled>Previous</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextBtn">Next</button>
+        </div>
+
+        <h4>Choose a solution:</h4>
+        <select id="codeOptions" onchange="loadCode()">
+            <option value="">-- Select a solution --</option>
+            <option value="solution1">Solution 1: Correct</option>
+            <option value="solution2">Solution 2: Incorrect (Shows all rows)</option>
+            <option value="solution3">Solution 3: Incorrect (Does not update page numbers)</option>
+        </select>
+
+        <textarea id="codeEditor">// Choose a solution and run it</textarea>
+        <br>
+        <button onclick="runCode()">Run Code</button>
+        <button onclick="checkAnswer()">Check Answer</button>
+
+        <p id="result"></p>
     </div>
-
-    <!-- User Input Area -->
-    <h3>Write your JavaScript here 👇</h3>
-    <textarea id="codeEditor">// Implement pagination for the table (5 rows per page)</textarea>
-    <br>
-    <button onclick="runCode()">Run Code</button>
-    <button onclick="checkAnswer()">Check Answer</button>
-
-    <!-- Result -->
-    <p id="result"></p>
 
     <script>
         // Sample Data
@@ -92,8 +103,7 @@
 
         function displayAllRows() {
             const tableBody = document.getElementById("tableBody");
-            tableBody.innerHTML = ""; // Clear table
-
+            tableBody.innerHTML = "";
             data.forEach(row => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `<td>${row.id}</td><td>${row.name}</td><td>${row.role}</td>`;
@@ -103,36 +113,38 @@
 
         displayAllRows(); // Show all rows initially
 
-        function runCode() {
-            try {
-                const userCode = document.getElementById("codeEditor").value;
-                eval(userCode); // Execute user code
-                document.getElementById("result").innerText = "✅ Code Executed!";
-            } catch (error) {
-                document.getElementById("result").innerText = "❌ Error in Code!";
-            }
-        }
+        function loadCode() {
+            const selectedOption = document.getElementById("codeOptions").value;
+            const codeEditor = document.getElementById("codeEditor");
 
-        function checkAnswer() {
-            let correct = true;
-
-            // Check if pagination controls are visible
-            const paginationVisible = document.getElementById("paginationControls").style.display !== "none";
-            if (!paginationVisible) correct = false;
-
-            // Check if only 5 rows are displayed
-            const rows = document.querySelectorAll("#tableBody tr");
-            if (rows.length !== 5) correct = false;
-
-            // Check if the page updates on next/prev click
-            let initialRows = [...rows].map(row => row.children[0].innerText); // Save initial rows
-            document.getElementById("nextBtn").click(); // Simulate next page click
-            let newRows = [...document.querySelectorAll("#tableBody tr")].map(row => row.children[0].innerText);
-
-            if (JSON.stringify(initialRows) === JSON.stringify(newRows)) {
-                correct = false; // Page didn't change
-            }
-
-            // Check if Previous button works
-            document.getElementById("prevBtn").click();
-            let revertedRows = [...document.querySele
+            if (selectedOption === "solution1") {
+                codeEditor.value = `let currentPage = 1;
+const rowsPerPage = 5;
+function displayTable(page) {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+    let start = (page - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+    let pageData = data.slice(start, end);
+    pageData.forEach(row => {
+        let tr = document.createElement("tr");
+        tr.innerHTML = \`<td>\${row.id}</td><td>\${row.name}</td><td>\${row.role}</td>\`;
+        tableBody.appendChild(tr);
+    });
+    document.getElementById("pageInfo").innerText = "Page " + page;
+    document.getElementById("prevBtn").disabled = (page === 1);
+    document.getElementById("nextBtn").disabled = (page * rowsPerPage >= data.length);
+}
+document.getElementById("nextBtn").onclick = () => { if (currentPage * rowsPerPage < data.length) { currentPage++; displayTable(currentPage); } };
+document.getElementById("prevBtn").onclick = () => { if (currentPage > 1) { currentPage--; displayTable(currentPage); } };
+displayTable(currentPage);`;
+            } else if (selectedOption === "solution2") {
+                codeEditor.value = `displayAllRows(); // Incorrect: No pagination applied`;
+            } else if (selectedOption === "solution3") {
+                codeEditor.value = `let currentPage = 1;
+const rowsPerPage = 5;
+function displayTable() {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+    let start = (currentPage - 1) * rowsPerPage;
+    let end
