@@ -33,6 +33,8 @@
         #gif-preview {
             margin-top: 20px;
             display: none;
+            border: 2px solid white;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -41,13 +43,14 @@
     <h2>Convert Typing Animation to GIF</h2>
     <canvas id="canvas" width="400" height="100"></canvas>
     <br>
-    <button id="download">Download GIF1</button>
+    <button id="download">Download GIF</button>
     <br>
     <img id="gif-preview" alt="Generated GIF will appear here">
 
     <script>
         const text = "Hello, welcome to GIF!";
         let i = 0;
+        let gif = null; // Store the GIF instance
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -58,19 +61,12 @@
             ctx.fillText(text.substring(0, index), 20, 50);
         }
 
-        let gif = new GIF({
-            workers: 2,
-            quality: 10,
-            width: canvas.width,
-            height: canvas.height
-        });
-
         function captureFrames() {
             if (i <= text.length) {
                 drawText(i);
                 gif.addFrame(canvas, { copy: true, delay: 150 }); // Add frame
                 i++;
-                setTimeout(captureFrames, 150); // Typing speed
+                setTimeout(captureFrames, 150); // Adjust speed
             } else {
                 generateGIF();
             }
@@ -89,9 +85,15 @@
                 let link = document.createElement("a");
                 link.href = url;
                 link.download = "typing-animation.gif";
-                link.innerHTML = "Click here to download GIF";
+                link.textContent = "Click here to download GIF";
                 link.style.display = "block";
                 link.style.marginTop = "10px";
+                
+                // Remove old links if any
+                let existingLink = document.querySelector("a[download]");
+                if (existingLink) {
+                    existingLink.remove();
+                }
                 document.body.appendChild(link);
             });
 
@@ -99,13 +101,20 @@
         }
 
         document.getElementById("download").addEventListener("click", () => {
+            if (gif !== null) {
+                gif.abort(); // Stop any previous GIF process
+            }
+
             i = 0;
+
+            // Create a new GIF instance (reset)
             gif = new GIF({
                 workers: 2,
                 quality: 10,
                 width: canvas.width,
                 height: canvas.height
-            }); // Reset GIF object
+            });
+
             captureFrames();
         });
 
