@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagination Challenge</title>
+    <title>API Integration Challenge</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
         }
-        .challenge-box {
-            width: 500px;
-            margin: auto;
-            border: 2px solid #ccc;
-            padding: 15px;
-            border-radius: 8px;
-            background: #f9f9f9;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        .left-panel, .right-panel {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            border: 1px solid #ddd;
+        }
+        .left-panel {
+            background: #f8f8f8;
+        }
+        h3 {
+            text-align: center;
         }
         table {
             width: 100%;
@@ -29,122 +34,100 @@
             padding: 8px;
             text-align: center;
         }
-        .pagination {
-            margin: 10px;
-        }
-        button, select {
-            margin: 5px;
-            padding: 8px;
-            cursor: pointer;
+        th {
+            background-color: #f4f4f4;
         }
         textarea {
             width: 100%;
-            height: 80px;
-            margin-top: 10px;
+            height: 200px;
             font-size: 14px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            width: 100%;
+            cursor: pointer;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="challenge-box">
-        <h3>Pagination Challenge</h3>
-        <p>Select the correct JavaScript code to paginate this table:</p>
+    <!-- Left Panel: Table Grid & Instructions -->
+    <div class="left-panel">
+        <h3>📜 Task: Integrate API into Table Grid</h3>
+        <p>Your goal is to fetch data from the following API and populate the table grid.</p>
+        
+        <p><strong>🔗 API Endpoint:</strong></p>
+        <p><code>https://apigenerator.dronahq.com/api/3fk8ctvP/data</code></p>
 
+        <h4>🔹 Expected Table Output:</h4>
         <table id="dataTable">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Role</th>
+                    <th>Email</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- Data Rows -->
+                <!-- API data will be inserted here -->
             </tbody>
         </table>
+        
+        <h4>📌 How to Use the API</h4>
+        <p>1️⃣ Use <code>fetch()</code> to call the API.</p>
+        <p>2️⃣ Extract <code>id</code>, <code>name</code>, and <code>email</code>.</p>
+        <p>3️⃣ Append rows into <code>#tableBody</code>.</p>
+        <p>4️⃣ Click "Run Code" to test.</p>
+    </div>
 
-        <div class="pagination" id="paginationControls">
-            <button id="prevBtn" disabled>Previous</button>
-            <span id="pageInfo">Page 1</span>
-            <button id="nextBtn">Next</button>
-        </div>
-
-        <h4>Choose a solution:</h4>
-        <select id="codeOptions" onchange="loadCode()">
-            <option value="">-- Select a solution --</option>
-            <option value="solution1">Solution 1: Correct</option>
-            <option value="solution2">Solution 2: Incorrect (Shows all rows)</option>
-            <option value="solution3">Solution 3: Incorrect (Does not update page numbers)</option>
-        </select>
-
-        <textarea id="codeEditor">// Choose a solution and run it</textarea>
-        <br>
-        <button onclick="runCode()">Run Code</button>
-        <button onclick="checkAnswer()">Check Answer</button>
-
+    <!-- Right Panel: JavaScript Editor -->
+    <div class="right-panel">
+        <h3>💻 JavaScript Code Editor</h3>
+        <textarea id="codeEditor">// Write your API integration code here...</textarea>
+        <button onclick="runCode()">▶ Run Code</button>
         <p id="result"></p>
     </div>
 
     <script>
-        // Sample Data
-        const data = [
-            { id: 1, name: "Alice", role: "Engineer" },
-            { id: 2, name: "Bob", role: "Designer" },
-            { id: 3, name: "Charlie", role: "Manager" },
-            { id: 4, name: "David", role: "Analyst" },
-            { id: 5, name: "Eve", role: "DevOps" },
-            { id: 6, name: "Frank", role: "HR" },
-            { id: 7, name: "Grace", role: "Support" },
-            { id: 8, name: "Hank", role: "Marketing" },
-            { id: 9, name: "Ivy", role: "Finance" },
-            { id: 10, name: "Jack", role: "Security" }
-        ];
+        function runCode() {
+            try {
+                // Clear previous result
+                document.getElementById("tableBody").innerHTML = "";
 
-        function displayAllRows() {
-            const tableBody = document.getElementById("tableBody");
-            tableBody.innerHTML = "";
-            data.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `<td>${row.id}</td><td>${row.name}</td><td>${row.role}</td>`;
-                tableBody.appendChild(tr);
-            });
+                // Get user-entered code
+                const userCode = document.getElementById("codeEditor").value;
+
+                // Execute user's JavaScript
+                eval(userCode);
+
+                // Validate if API data was inserted correctly
+                setTimeout(() => {
+                    const rows = document.querySelectorAll("#tableBody tr");
+                    if (rows.length > 0) {
+                        document.getElementById("result").innerText = "🎉 Success! API Data Loaded.";
+                    } else {
+                        document.getElementById("result").innerText = "❌ Failed! No data inserted into the table.";
+                    }
+                }, 2000);
+
+            } catch (error) {
+                document.getElementById("result").innerText = "❌ Error in Code!";
+            }
         }
+    </script>
 
-        displayAllRows(); // Show all rows initially
-
-        function loadCode() {
-            const selectedOption = document.getElementById("codeOptions").value;
-            const codeEditor = document.getElementById("codeEditor");
-
-            if (selectedOption === "solution1") {
-                codeEditor.value = `let currentPage = 1;
-const rowsPerPage = 5;
-function displayTable(page) {
-    const tableBody = document.getElementById("tableBody");
-    tableBody.innerHTML = "";
-    let start = (page - 1) * rowsPerPage;
-    let end = start + rowsPerPage;
-    let pageData = data.slice(start, end);
-    pageData.forEach(row => {
-        let tr = document.createElement("tr");
-        tr.innerHTML = \`<td>\${row.id}</td><td>\${row.name}</td><td>\${row.role}</td>\`;
-        tableBody.appendChild(tr);
-    });
-    document.getElementById("pageInfo").innerText = "Page " + page;
-    document.getElementById("prevBtn").disabled = (page === 1);
-    document.getElementById("nextBtn").disabled = (page * rowsPerPage >= data.length);
-}
-document.getElementById("nextBtn").onclick = () => { if (currentPage * rowsPerPage < data.length) { currentPage++; displayTable(currentPage); } };
-document.getElementById("prevBtn").onclick = () => { if (currentPage > 1) { currentPage--; displayTable(currentPage); } };
-displayTable(currentPage);`;
-            } else if (selectedOption === "solution2") {
-                codeEditor.value = `displayAllRows(); // Incorrect: No pagination applied`;
-            } else if (selectedOption === "solution3") {
-                codeEditor.value = `let currentPage = 1;
-const rowsPerPage = 5;
-function displayTable() {
-    const tableBody = document.getElementById("tableBody");
-    tableBody.innerHTML = "";
-    let start = (currentPage - 1) * rowsPerPage;
-    let end
+</body>
+</html>
