@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Integration Challenge</title>
+    <title>TableGrid Component API Challenge</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +22,15 @@
             background: #f8f8f8;
         }
         h3 {
-            text-align: center;
+            text-align: left;
+        }
+        .code-snippet {
+            background: #272822;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
         }
         table {
             width: 100%;
@@ -64,15 +72,48 @@
 </head>
 <body>
 
-    <!-- Left Panel: Table Grid & Instructions -->
+    <!-- Left Panel: Documentation & Table Component Guide -->
     <div class="left-panel">
-        <h3>📜 Task: Integrate API into Table Grid</h3>
-        <p>Your goal is to fetch data from the following API and populate the table grid.</p>
+        <h3>📖 TableGrid Component Documentation</h3>
         
-        <p><strong>🔗 API Endpoint:</strong></p>
-        <p><code>https://apigenerator.dronahq.com/api/3fk8ctvP/data</code></p>
+        <p><strong>Component:</strong> <code>&lt;TableGrid /&gt;</code></p>
+        
+        <p><strong>Description:</strong> A reusable table component used across apps to display structured data.</p>
+        
+        <h4>🔹 How to Use</h4>
+        <p>Use JavaScript to populate the table using the provided API.</p>
+        
+        <div class="code-snippet">
+        // Select table element  
+        const table = document.getElementById("tableBody");  
+        
+        // Insert data  
+        table.innerHTML += `  
+            &lt;tr&gt;  
+                &lt;td&gt;User ID&lt;/td&gt;  
+                &lt;td&gt;User Name&lt;/td&gt;  
+                &lt;td&gt;User Email&lt;/td&gt;  
+            &lt;/tr&gt;  
+        `;
+        </div>
 
-        <h4>🔹 Expected Table Output:</h4>
+        <h4>🔗 API Endpoint</h4>
+        <p>Fetch data from:</p>
+        <div class="code-snippet">
+        "https://apigenerator.dronahq.com/api/3fk8ctvP/data"
+        </div>
+
+        <h4>📌 Expected JSON Response:</h4>
+        <div class="code-snippet">
+        [
+            { "id": 1, "name": "Alice", "email": "alice@example.com" },
+            { "id": 2, "name": "Bob", "email": "bob@example.com" }
+        ]
+        </div>
+
+        <h4>✅ Your Task:</h4>
+        <p>Write JavaScript to fetch data from the API and populate the table grid below:</p>
+        
         <table id="dataTable">
             <thead>
                 <tr>
@@ -85,12 +126,6 @@
                 <!-- API data will be inserted here -->
             </tbody>
         </table>
-        
-        <h4>📌 How to Use the API</h4>
-        <p>1️⃣ Use <code>fetch()</code> to call the API.</p>
-        <p>2️⃣ Extract <code>id</code>, <code>name</code>, and <code>email</code>.</p>
-        <p>3️⃣ Append rows into <code>#tableBody</code>.</p>
-        <p>4️⃣ Click "Run Code" to test.</p>
     </div>
 
     <!-- Right Panel: JavaScript Editor -->
