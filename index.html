@@ -60,14 +60,14 @@
 
     <!-- Pagination Controls -->
     <div class="pagination">
-        <button onclick="prevPage()">Previous</button>
+        <button id="prevBtn">Previous</button>
         <span id="pageInfo">Page 1</span>
-        <button onclick="nextPage()">Next</button>
+        <button id="nextBtn">Next</button>
     </div>
 
     <!-- User Input Area -->
     <h3>Write your JavaScript here 👇</h3>
-    <textarea id="codeEditor">// Write your JavaScript to paginate the table</textarea>
+    <textarea id="codeEditor">// Implement pagination for the table (5 rows per page)</textarea>
     <br>
     <button onclick="runCode()">Run Code</button>
     <button onclick="checkAnswer()">Check Answer</button>
@@ -108,6 +108,8 @@
             });
 
             document.getElementById("pageInfo").innerText = `Page ${page}`;
+            document.getElementById("prevBtn").disabled = (page === 1);
+            document.getElementById("nextBtn").disabled = (page * rowsPerPage >= data.length);
         }
 
         function nextPage() {
@@ -124,6 +126,9 @@
             }
         }
 
+        document.getElementById("prevBtn").addEventListener("click", prevPage);
+        document.getElementById("nextBtn").addEventListener("click", nextPage);
+
         displayTable(currentPage); // Initial Display
 
         function runCode() {
@@ -137,11 +142,42 @@
         }
 
         function checkAnswer() {
-            const rows = document.querySelectorAll("#tableBody tr").length;
-            if (rows === 5) {
+            let correct = true;
+
+            // Check if only 5 rows are displayed
+            const rows = document.querySelectorAll("#tableBody tr");
+            if (rows.length !== 5) {
+                correct = false;
+            }
+
+            // Check if pagination buttons are working
+            let initialPage = currentPage;
+            nextPage();
+            let pageChanged = currentPage !== initialPage;
+            prevPage();
+
+            if (!pageChanged) {
+                correct = false;
+            }
+
+            // Validate page display
+            const pageInfo = document.getElementById("pageInfo").innerText;
+            if (!pageInfo.includes("Page")) {
+                correct = false;
+            }
+
+            // Validate Next and Previous button states
+            const prevDisabled = document.getElementById("prevBtn").disabled;
+            const nextDisabled = document.getElementById("nextBtn").disabled;
+
+            if ((currentPage === 1 && !prevDisabled) || (currentPage * rowsPerPage >= data.length && !nextDisabled)) {
+                correct = false;
+            }
+
+            if (correct) {
                 document.getElementById("result").innerText = "🎉 Correct! Pagination is working.";
             } else {
-                document.getElementById("result").innerText = "❌ Incorrect! Ensure 5 rows per page.";
+                document.getElementById("result").innerText = "❌ Incorrect! Ensure 5 rows per page and working pagination.";
             }
         }
     </script>
