@@ -21,7 +21,7 @@
             border-radius: 10px;
             margin-top: 20px;
         }
-        #download {
+        #generate {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #007BFF;
@@ -45,10 +45,10 @@
 </head>
 <body>
 
-    <h2>Convert Typing Animation to GIF</h2>
+    <h2>Convert Typing Animation to GIF new version</h2>
     <canvas id="canvas" width="400" height="100"></canvas>
     <br>
-    <button id="download">Generate GIF</button>
+    <button id="generate">Generate GIF</button>
     <p id="progress">Generating GIF... Please wait.</p>
     <br>
     <img id="gif-preview" alt="Generated GIF will appear here">
@@ -57,7 +57,7 @@
         const text = "Hello, welcome to GIF!";
         let i = 0;
         let gif = null; // Store the GIF instance
-        let processing = false; // Prevent multiple GIF creations
+        let processing = false; // Prevent multiple GIF generations
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -68,63 +68,7 @@
             ctx.fillText(text.substring(0, index), 20, 50);
         }
 
-        function captureFrames() {
-            if (i <= text.length) {
-                drawText(i);
-                gif.addFrame(canvas, { copy: true, delay: 150 }); // Add frame
-                i++;
-                setTimeout(captureFrames, 150); // Adjust speed
-            } else {
-                setTimeout(() => { generateGIF(); }, 500); // Ensure last frame is added before rendering
-            }
-        }
-
-        function generateGIF() {
-            if (processing) return; // Prevent multiple GIF generations
-            processing = true;
-            document.getElementById("progress").style.display = "block";
-
-            gif.on('finished', function(blob) {
-                let url = URL.createObjectURL(blob);
-
-                // Show GIF preview
-                let gifPreview = document.getElementById("gif-preview");
-                gifPreview.src = url;
-                gifPreview.style.display = "block";
-
-                // Create download link
-                let link = document.createElement("a");
-                link.href = url;
-                link.download = "typing-animation.gif";
-                link.textContent = "Click here to download GIF";
-                link.style.display = "block";
-                link.style.marginTop = "10px";
-
-                // Remove old links if any
-                let existingLink = document.querySelector("a[download]");
-                if (existingLink) {
-                    existingLink.remove();
-                }
-                document.body.appendChild(link);
-
-                document.getElementById("progress").style.display = "none";
-                processing = false; // Reset flag after completion
-            });
-
-            gif.render();
-        }
-
-        document.getElementById("download").addEventListener("click", () => {
-            if (processing) return; // Prevent multiple clicks
-            if (gif !== null) {
-                gif.abort(); // Stop any previous GIF process
-            }
-
-            i = 0;
-            processing = false;
-            document.getElementById("progress").style.display = "none";
-
-            // Create a new GIF instance (reset)
+        function captureFrames(callback) {
             gif = new GIF({
                 workers: 2,
                 quality: 10,
@@ -132,9 +76,57 @@
                 height: canvas.height
             });
 
-            captureFrames();
-        });
+            function addFrame(index) {
+                if (index <= text.length) {
+                    drawText(index);
+                    gif.addFrame(canvas, { copy: true, delay: 150 }); // Add frame
+                    setTimeout(() => addFrame(index + 1), 150); // Adjust speed
+                } else {
+                    callback(); // Call back when done
+                }
+            }
 
+            addFrame(0);
+        }
+
+        function generateGIF() {
+            if (processing) return; // Prevent multiple GIF generations
+            processing = true;
+            document.getElementById("progress").style.display = "block";
+
+            captureFrames(() => {
+                gif.on('finished', function(blob) {
+                    let url = URL.createObjectURL(blob);
+
+                    // Show GIF preview
+                    let gifPreview = document.getElementById("gif-preview");
+                    gifPreview.src = url;
+                    gifPreview.style.display = "block";
+
+                    // Create download link
+                    let link = document.createElement("a");
+                    link.href = url;
+                    link.download = "typing-animation.gif";
+                    link.textContent = "Click here to download GIF";
+                    link.style.display = "block";
+                    link.style.marginTop = "10px";
+
+                    // Remove old links if any
+                    let existingLink = document.querySelector("a[download]");
+                    if (existingLink) {
+                        existingLink.remove();
+                    }
+                    document.body.appendChild(link);
+
+                    document.getElementById("progress").style.display = "none";
+                    processing = false; // Reset flag after completion
+                });
+
+                gif.render();
+            });
+        }
+
+        document.getElementById("generate").addEventListener("click", generateGIF);
     </script>
 
 </body>
