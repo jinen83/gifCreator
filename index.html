@@ -30,6 +30,10 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        #gif-preview {
+            margin-top: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -38,6 +42,8 @@
     <canvas id="canvas" width="400" height="100"></canvas>
     <br>
     <button id="download">Download GIF</button>
+    <br>
+    <img id="gif-preview" alt="Generated GIF will appear here">
 
     <script>
         const text = "Hello, welcome to GIF!";
@@ -52,37 +58,40 @@
             ctx.fillText(text.substring(0, index), 20, 50);
         }
 
-        let frames = [];
+        let gif = new GIF({
+            workers: 2,
+            quality: 10,
+            width: canvas.width,
+            height: canvas.height
+        });
+
         function captureFrames() {
             if (i <= text.length) {
                 drawText(i);
-                frames.push(canvas.toDataURL()); // Capture frame
+                gif.addFrame(canvas, { copy: true, delay: 150 }); // Add frame
                 i++;
-                setTimeout(captureFrames, 150); // Adjust speed
+                setTimeout(captureFrames, 150); // Typing speed
             } else {
                 generateGIF();
             }
         }
 
         function generateGIF() {
-            let gif = new GIF({
-                workers: 2,
-                quality: 10
-            });
-
-            frames.forEach(frame => {
-                let img = new Image();
-                img.src = frame;
-                img.onload = function() {
-                    gif.addFrame(img, { delay: 150 });
-                };
-            });
-
             gif.on('finished', function(blob) {
+                let url = URL.createObjectURL(blob);
+
+                // Show GIF preview
+                let gifPreview = document.getElementById("gif-preview");
+                gifPreview.src = url;
+                gifPreview.style.display = "block";
+
+                // Create download link
                 let link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
+                link.href = url;
                 link.download = "typing-animation.gif";
                 link.innerHTML = "Click here to download GIF";
+                link.style.display = "block";
+                link.style.marginTop = "10px";
                 document.body.appendChild(link);
             });
 
@@ -91,7 +100,12 @@
 
         document.getElementById("download").addEventListener("click", () => {
             i = 0;
-            frames = [];
+            gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: canvas.width,
+                height: canvas.height
+            }); // Reset GIF object
             captureFrames();
         });
 
