@@ -3,130 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convert Animation to GIF</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <title>Table Grid Pagination Challenge</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
             text-align: center;
-            background-color: #222;
-            color: white;
         }
-        #canvas {
-            background: white;
-            color: black;
-            font-size: 24px;
-            padding: 20px;
-            display: inline-block;
-            border-radius: 10px;
-            margin-top: 20px;
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
         }
-        #generate {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .pagination {
+            margin: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
             cursor: pointer;
-            border-radius: 5px;
         }
-        #progress {
-            margin-top: 10px;
-            color: yellow;
-            display: none;
-        }
-        #gif-preview {
+        textarea {
+            width: 80%;
+            height: 100px;
             margin-top: 20px;
-            display: none;
-            border: 2px solid white;
-            border-radius: 5px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <h2>Convert Typing Animation to GIF new version</h2>
-    <canvas id="canvas" width="400" height="100"></canvas>
+    <h2>Table Grid Pagination Challenge</h2>
+    <p><strong>Task:</strong> Implement pagination (5 rows per page) using JavaScript</p>
+
+    <!-- Table Grid -->
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Data Rows -->
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <button onclick="prevPage()">Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+
+    <!-- User Input Area -->
+    <h3>Write your JavaScript here 👇</h3>
+    <textarea id="codeEditor">// Write your JavaScript to paginate the table</textarea>
     <br>
-    <button id="generate">Generate GIF</button>
-    <p id="progress">Generating GIF... Please wait.</p>
-    <br>
-    <img id="gif-preview" alt="Generated GIF will appear here">
+    <button onclick="runCode()">Run Code</button>
+    <button onclick="checkAnswer()">Check Answer</button>
+
+    <!-- Result -->
+    <p id="result"></p>
 
     <script>
-        const text = "Hello, welcome to GIF!";
-        let i = 0;
-        let gif = null; // Store the GIF instance
-        let processing = false; // Prevent multiple GIF generations
-        const canvas = document.getElementById("canvas");
-        const ctx = canvas.getContext("2d");
+        // Sample Data
+        const data = [
+            { id: 1, name: "Alice", role: "Engineer" },
+            { id: 2, name: "Bob", role: "Designer" },
+            { id: 3, name: "Charlie", role: "Manager" },
+            { id: 4, name: "David", role: "Analyst" },
+            { id: 5, name: "Eve", role: "DevOps" },
+            { id: 6, name: "Frank", role: "HR" },
+            { id: 7, name: "Grace", role: "Support" },
+            { id: 8, name: "Hank", role: "Marketing" },
+            { id: 9, name: "Ivy", role: "Finance" },
+            { id: 10, name: "Jack", role: "Security" }
+        ];
 
-        function drawText(index) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "black";
-            ctx.font = "24px Arial";
-            ctx.fillText(text.substring(0, index), 20, 50);
-        }
+        let currentPage = 1;
+        const rowsPerPage = 5;
 
-        function captureFrames(callback) {
-            gif = new GIF({
-                workers: 2,
-                quality: 10,
-                width: canvas.width,
-                height: canvas.height
+        function displayTable(page) {
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = ""; // Clear table
+
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = data.slice(start, end);
+
+            pageData.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>${row.id}</td><td>${row.name}</td><td>${row.role}</td>`;
+                tableBody.appendChild(tr);
             });
 
-            function addFrame(index) {
-                if (index <= text.length) {
-                    drawText(index);
-                    gif.addFrame(canvas, { copy: true, delay: 150 }); // Add frame
-                    setTimeout(() => addFrame(index + 1), 150); // Adjust speed
-                } else {
-                    callback(); // Call back when done
-                }
+            document.getElementById("pageInfo").innerText = `Page ${page}`;
+        }
+
+        function nextPage() {
+            if (currentPage * rowsPerPage < data.length) {
+                currentPage++;
+                displayTable(currentPage);
             }
-
-            addFrame(0);
         }
 
-        function generateGIF() {
-            if (processing) return; // Prevent multiple GIF generations
-            processing = true;
-            document.getElementById("progress").style.display = "block";
-
-            captureFrames(() => {
-                gif.on('finished', function(blob) {
-                    let url = URL.createObjectURL(blob);
-
-                    // Show GIF preview
-                    let gifPreview = document.getElementById("gif-preview");
-                    gifPreview.src = url;
-                    gifPreview.style.display = "block";
-
-                    // Create download link
-                    let link = document.createElement("a");
-                    link.href = url;
-                    link.download = "typing-animation.gif";
-                    link.textContent = "Click here to download GIF";
-                    link.style.display = "block";
-                    link.style.marginTop = "10px";
-
-                    // Remove old links if any
-                    let existingLink = document.querySelector("a[download]");
-                    if (existingLink) {
-                        existingLink.remove();
-                    }
-                    document.body.appendChild(link);
-
-                    document.getElementById("progress").style.display = "none";
-                    processing = false; // Reset flag after completion
-                });
-
-                gif.render();
-            });
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayTable(currentPage);
+            }
         }
 
-        document.getElementById("generate").addEventListener("click", generateGIF);
+        displayTable(currentPage); // Initial Display
+
+        function runCode() {
+            try {
+                const userCode = document.getElementById("codeEditor").value;
+                eval(userCode);
+                document.getElementById("result").innerText = "✅ Code Executed!";
+            } catch (error) {
+                document.getElementById("result").innerText = "❌ Error in Code!";
+            }
+        }
+
+        function checkAnswer() {
+            const rows = document.querySelectorAll("#tableBody tr").length;
+            if (rows === 5) {
+                document.getElementById("result").innerText = "🎉 Correct! Pagination is working.";
+            } else {
+                document.getElementById("result").innerText = "❌ Incorrect! Ensure 5 rows per page.";
+            }
+        }
     </script>
 
 </body>
