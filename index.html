@@ -42,7 +42,7 @@
 <body>
 
     <h2>Table Grid Pagination Challenge</h2>
-    <p><strong>Task:</strong> Implement pagination (5 rows per page) using JavaScript</p>
+    <p><strong>Task:</strong> Implement pagination (5 rows per page) using JavaScript.</p>
 
     <!-- Table Grid -->
     <table id="dataTable">
@@ -58,8 +58,8 @@
         </tbody>
     </table>
 
-    <!-- Pagination Controls -->
-    <div class="pagination">
+    <!-- Pagination Controls (Initially hidden) -->
+    <div class="pagination" id="paginationControls" style="display: none;">
         <button id="prevBtn">Previous</button>
         <span id="pageInfo">Page 1</span>
         <button id="nextBtn">Next</button>
@@ -90,51 +90,23 @@
             { id: 10, name: "Jack", role: "Security" }
         ];
 
-        let currentPage = 1;
-        const rowsPerPage = 5;
-
-        function displayTable(page) {
+        function displayAllRows() {
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = ""; // Clear table
 
-            const start = (page - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            const pageData = data.slice(start, end);
-
-            pageData.forEach(row => {
+            data.forEach(row => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `<td>${row.id}</td><td>${row.name}</td><td>${row.role}</td>`;
                 tableBody.appendChild(tr);
             });
-
-            document.getElementById("pageInfo").innerText = `Page ${page}`;
-            document.getElementById("prevBtn").disabled = (page === 1);
-            document.getElementById("nextBtn").disabled = (page * rowsPerPage >= data.length);
         }
 
-        function nextPage() {
-            if (currentPage * rowsPerPage < data.length) {
-                currentPage++;
-                displayTable(currentPage);
-            }
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                displayTable(currentPage);
-            }
-        }
-
-        document.getElementById("prevBtn").addEventListener("click", prevPage);
-        document.getElementById("nextBtn").addEventListener("click", nextPage);
-
-        displayTable(currentPage); // Initial Display
+        displayAllRows(); // Show all rows initially
 
         function runCode() {
             try {
                 const userCode = document.getElementById("codeEditor").value;
-                eval(userCode);
+                eval(userCode); // Execute user code
                 document.getElementById("result").innerText = "✅ Code Executed!";
             } catch (error) {
                 document.getElementById("result").innerText = "❌ Error in Code!";
@@ -144,43 +116,23 @@
         function checkAnswer() {
             let correct = true;
 
+            // Check if pagination controls are visible
+            const paginationVisible = document.getElementById("paginationControls").style.display !== "none";
+            if (!paginationVisible) correct = false;
+
             // Check if only 5 rows are displayed
             const rows = document.querySelectorAll("#tableBody tr");
-            if (rows.length !== 5) {
-                correct = false;
+            if (rows.length !== 5) correct = false;
+
+            // Check if the page updates on next/prev click
+            let initialRows = [...rows].map(row => row.children[0].innerText); // Save initial rows
+            document.getElementById("nextBtn").click(); // Simulate next page click
+            let newRows = [...document.querySelectorAll("#tableBody tr")].map(row => row.children[0].innerText);
+
+            if (JSON.stringify(initialRows) === JSON.stringify(newRows)) {
+                correct = false; // Page didn't change
             }
 
-            // Check if pagination buttons are working
-            let initialPage = currentPage;
-            nextPage();
-            let pageChanged = currentPage !== initialPage;
-            prevPage();
-
-            if (!pageChanged) {
-                correct = false;
-            }
-
-            // Validate page display
-            const pageInfo = document.getElementById("pageInfo").innerText;
-            if (!pageInfo.includes("Page")) {
-                correct = false;
-            }
-
-            // Validate Next and Previous button states
-            const prevDisabled = document.getElementById("prevBtn").disabled;
-            const nextDisabled = document.getElementById("nextBtn").disabled;
-
-            if ((currentPage === 1 && !prevDisabled) || (currentPage * rowsPerPage >= data.length && !nextDisabled)) {
-                correct = false;
-            }
-
-            if (correct) {
-                document.getElementById("result").innerText = "🎉 Correct! Pagination is working.";
-            } else {
-                document.getElementById("result").innerText = "❌ Incorrect! Ensure 5 rows per page and working pagination.";
-            }
-        }
-    </script>
-
-</body>
-</html>
+            // Check if Previous button works
+            document.getElementById("prevBtn").click();
+            let revertedRows = [...document.querySele
