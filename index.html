@@ -11,18 +11,21 @@
             padding: 0;
             display: flex;
             height: 100vh;
+            background: #121212;
+            color: #ffffff;
         }
         .left-panel, .right-panel {
             flex: 1;
             padding: 20px;
             overflow: auto;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
         }
         .left-panel {
-            background: #f8f8f8;
+            background: #1e1e1e;
         }
-        h3 {
+        h3, h4 {
             text-align: left;
+            color: #ffffff;
         }
         .code-snippet {
             background: #272822;
@@ -31,24 +34,45 @@
             border-radius: 5px;
             font-family: monospace;
             white-space: pre-wrap;
+            overflow-x: auto;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #555;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .copy-btn:hover {
+            background: #777;
         }
         table {
             width: 100%;
             margin: 10px 0;
             border-collapse: collapse;
+            background: #222;
         }
         th, td {
-            border: 1px solid #ccc;
+            border: 1px solid #444;
             padding: 8px;
             text-align: center;
+            color: #ffffff;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: #333;
         }
         textarea {
             width: 100%;
             height: 200px;
             font-size: 14px;
+            background: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #444;
         }
         button {
             margin-top: 10px;
@@ -77,43 +101,48 @@
         <h3>📖 TableGrid Component Documentation</h3>
         
         <p><strong>Component:</strong> <code>&lt;TableGrid /&gt;</code></p>
-        
         <p><strong>Description:</strong> A reusable table component used across apps to display structured data.</p>
         
-        <h4>🔹 How to Use</h4>
-        <p>Use JavaScript to populate the table using the provided API.</p>
-        
+        <h4>🔹 Sample API Fetch Code</h4>
         <div class="code-snippet">
-        // Select table element  
-        const table = document.getElementById("tableBody");  
-        
-        // Insert data  
-        table.innerHTML += `  
-            &lt;tr&gt;  
-                &lt;td&gt;User ID&lt;/td&gt;  
-                &lt;td&gt;User Name&lt;/td&gt;  
-                &lt;td&gt;User Email&lt;/td&gt;  
-            &lt;/tr&gt;  
-        `;
-        </div>
-
-        <h4>🔗 API Endpoint</h4>
-        <p>Fetch data from:</p>
-        <div class="code-snippet">
-        "https://apigenerator.dronahq.com/api/3fk8ctvP/data"
+            <button class="copy-btn" onclick="copyCode()">📋</button>
+            <code id="fetchCode">
+fetch("https://apigenerator.dronahq.com/api/3fk8ctvP/data")
+    .then(response => response.json())
+    .then(data => {
+        const table = document.getElementById("tableBody");
+        table.innerHTML = ""; // Clear existing rows
+        data.forEach(item => {
+            const row = document.createElement("tr");
+            row.innerHTML = `&lt;td&gt;${item.id}&lt;/td&gt;&lt;td&gt;${item.name}&lt;/td&gt;&lt;td&gt;${item.email}&lt;/td&gt;`;
+            table.appendChild(row);
+        });
+    })
+    .catch(error => console.error("Error fetching data:", error));
+            </code>
         </div>
 
         <h4>📌 Expected JSON Response:</h4>
         <div class="code-snippet">
-        [
-            { "id": 1, "name": "Alice", "email": "alice@example.com" },
-            { "id": 2, "name": "Bob", "email": "bob@example.com" }
-        ]
+            <code>
+[
+    { "id": 1, "name": "Alice", "email": "alice@example.com" },
+    { "id": 2, "name": "Bob", "email": "bob@example.com" }
+]
+            </code>
         </div>
 
-        <h4>✅ Your Task:</h4>
-        <p>Write JavaScript to fetch data from the API and populate the table grid below:</p>
-        
+        <h4>🔗 API Endpoint</h4>
+        <div class="code-snippet">"https://apigenerator.dronahq.com/api/3fk8ctvP/data"</div>
+    </div>
+
+    <!-- Right Panel: JavaScript Editor -->
+    <div class="right-panel">
+        <h3>💻 JavaScript Code Editor</h3>
+        <textarea id="codeEditor">// Write your API integration code here...</textarea>
+        <button onclick="runCode()">▶ Run Code</button>
+        <p id="result"></p>
+
         <table id="dataTable">
             <thead>
                 <tr>
@@ -128,27 +157,12 @@
         </table>
     </div>
 
-    <!-- Right Panel: JavaScript Editor -->
-    <div class="right-panel">
-        <h3>💻 JavaScript Code Editor</h3>
-        <textarea id="codeEditor">// Write your API integration code here...</textarea>
-        <button onclick="runCode()">▶ Run Code</button>
-        <p id="result"></p>
-    </div>
-
     <script>
         function runCode() {
             try {
-                // Clear previous result
                 document.getElementById("tableBody").innerHTML = "";
-
-                // Get user-entered code
                 const userCode = document.getElementById("codeEditor").value;
-
-                // Execute user's JavaScript
                 eval(userCode);
-
-                // Validate if API data was inserted correctly
                 setTimeout(() => {
                     const rows = document.querySelectorAll("#tableBody tr");
                     if (rows.length > 0) {
@@ -157,10 +171,15 @@
                         document.getElementById("result").innerText = "❌ Failed! No data inserted into the table.";
                     }
                 }, 2000);
-
             } catch (error) {
                 document.getElementById("result").innerText = "❌ Error in Code!";
             }
+        }
+        function copyCode() {
+            const code = document.getElementById("fetchCode").innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Copied to clipboard!");
+            });
         }
     </script>
 
